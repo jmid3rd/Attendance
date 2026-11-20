@@ -112,20 +112,32 @@ function refreshDispatch(){
  selects.forEach(sel=>{ const keep=sel.value; sel.innerHTML='<option value="">-- PILI TAO --</option>'; present.forEach(p=>{ if(!used.includes(p) || p===keep){ const o=document.createElement('option'); o.value=p; o.text=p; if(p===keep) o.selected=true; sel.appendChild(o); } }); });
 }
 function addMobile(m='',a=''){
- const div=document.createElement('div'); div.className='mbox';
- div.innerHTML=`<button class="del" onclick="this.parentElement.remove();enforce()">x</button>
- <select class="mobile"><option value="">-- PILI MOBILE --</option>${mobiles.map(x=>`<option ${x===m?'selected':''}>${x}</option>`).join('')}</select>
- <select class="aor"><option value="">-- PILI AOR --</option>${aors.map(x=>`<option ${x===a?'selected':''}>${x}</option>`).join('')}</select>
- <select class="person p1" onchange="enforce()"></select>
- <select class="person p2" onchange="enforce()"></select>
- <select class="person p3" onchange="enforce()"></select>
- <button onclick="addPerson(this)" style="background:#3a3a3c;color:#ffcc02;padding:6px;font-size:11px">+ ADD 4th PERSON kung kailangan</button>`;
- document.getElementById('container').appendChild(div); refreshDispatch();
+function addMobile(m='',a=''){
+const div=document.createElement('div');
+div.className='mbox';
+div.innerHTML=`<button class="del" onclick="this.parentElement.remove();enforce()">x</button>
+<select class="mobile"><option value="">-- PILI MOBILE --</option>${mobiles.map(x=>`<option ${x===m?'selected':''}>${x}</option>`).join('')}</select>
+<select class="aor"><option value="">-- PILI AOR --</option>${aors.map(x=>`<option ${x===a?'selected':''}>${x}</option>`).join('')}</select>
+<select class="person p1" onchange="enforce()"></select>
+<select class="person p2" onchange="enforce()"></select>
+<div class="extra"></div>
+<button onclick="addPerson(this)" style="background:#3a3a3c;color:#ffcc02;padding:6px;font-size:11px">+ ADD 3rd PERSON kung kailangan</button>`;
+document.getElementById('container').appendChild(div);
+refreshDispatch();
 }
+
 function addPerson(btn){
- const mbox=btn.parentElement; const sel=document.createElement('select');
- sel.className='person p4'; sel.onchange=()=>enforce(); sel.style.cssText='width:100%;padding:9px;margin:4px 0;border-radius:8px;background:#111;color:#fff;border:1px solid #555';
- mbox.insertBefore(sel, btn); refreshDispatch();
+const mbox=btn.parentElement;
+const extra=mbox.querySelector('.extra');
+if(extra.children.length>=1) return;
+const sel=document.createElement('select');
+sel.className='person p3';
+sel.onchange=()=>enforce();
+sel.style.cssText='width:100%;padding:9px;margin:4px 0;border-radius:8px;background:#111;color:#fff;border:1px solid #555';
+extra.appendChild(sel);
+btn.style.display='none';
+refreshDispatch();
+}
 }
 function gen(){
  let cnt={PRESENT:0,"DAY OFF":0,ABSENT:0,ONLEAVE:0,SEMINAR:0,OFFSET:0,HOLIDAY:0}; for(let v of Object.values(data)){ cnt[v]++; }

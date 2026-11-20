@@ -18,7 +18,6 @@ h2{text-align:center;color:#0a84ff;font-size:16px}
 .chip.holiday{background:#30d158;color:#000}
 .total{padding:10px;border-radius:8px;text-align:center;font-weight:bold;margin-top:8px}
 .total.ok{background:#30d158;color:#000}
-.total.warn{background:#ff3b30;color:#fff}
 .mbox{background:#252528;border:1px solid #ffcc02;border-radius:10px;padding:10px;margin:8px 0;position:relative}
 .mbox select{width:100%;padding:9px;margin:4px 0;border-radius:8px;background:#111;color:#fff;border:1px solid #555}
 .del{position:absolute;top:5px;right:5px;background:#ff3b30;color:#fff;border:none;border-radius:50%;width:22px;height:22px}
@@ -26,7 +25,7 @@ button{width:100%;padding:12px;margin-top:8px;border:none;border-radius:8px;font
 .add{background:#30d158;color:#fff}
 .gen{background:#0a84ff;color:#fff}
 .copy{background:#ffcc02;color:#000;display:none}
-pre{background:#000;color:#fff;padding:12px;white-space:pre-wrap;display:none;font-size:12px}
+textarea#out{width:100%;background:#000;color:#fff;padding:12px;font-size:12px;border:none;box-sizing:border-box;white-space:pre-wrap;display:none}
 input{width:100%;padding:10px;border-radius:8px;background:#222;color:#fff;border:1px solid #555;box-sizing:border-box}
 .popup{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999;justify-content:center;align-items:center}
 .popup.show{display:flex}
@@ -47,7 +46,7 @@ input{width:100%;padding:10px;border-radius:8px;background:#222;color:#fff;borde
 </head>
 <body>
 <h2>📋 TMG - 13 PERSONNEL </h2>
-<input id="date" value="NOV. 19, 2026">
+<input id="date" value="">
 <div class="box">
 <b>1. PRESENT - click name</b>
 <div id="chips" style="margin-top:8px"></div>
@@ -69,7 +68,8 @@ input{width:100%;padding:10px;border-radius:8px;background:#222;color:#fff;borde
 </div>
 <button class="gen" onclick="gen()">Generate Report</button>
 <button class="copy" id="copyBtn" onclick="copyR()">📋 Copy Report</button>
-<pre id="out" onclick="copyR()"></pre>
+<textarea id="out" readonly rows="25" onclick="copyR()"></textarea>
+<p style="text-align:center;font-size:12px;color:#ffcc02">Diinan mo matagal yung itim na box > Select All > Copy</p>
 <div class="popup" id="popup" onclick="if(event.target===this) closePop()">
 <div class="popup-box">
 <h3 id="popName" style="text-align:center">NAME</h3>
@@ -155,35 +155,20 @@ if(persons.length>0){ r+=`${mob} ${aor}\n`; persons.forEach(p=>{ r+=`*${p}\n`; }
 const ro=document.getElementById('radio').value; if(ro) r+=`RADIO OPERATOR\n*${ro}\n`;
 const s1=document.getElementById('supa').value; const s2=document.getElementById('supb').value;
 if(s1||s2){ r+=`SUPERVISOR\n`; if(s1) r+=`${s1}\n`; if(s2) r+=`${s2}\n`; }
-document.getElementById('out').style.display='block'; document.getElementById('out').innerText=r; document.getElementById('copyBtn').style.display='block'; document.getElementById('copyBtn').innerText='📋 Copy Report';
+document.getElementById('out').style.display='block'; document.getElementById('out').value=r; document.getElementById('copyBtn').style.display='block'; document.getElementById('copyBtn').innerText='📋 Copy Report';
 }
 function copyR(){
-const text=document.getElementById('out').innerText;
-if(!text){ alert('Pindutin mo muna Generate Report'); return; }
-// 1. Try modern clipboard
-if(navigator.clipboard && window.isSecureContext){
-navigator.clipboard.writeText(text).then(()=>{
-document.getElementById('copyBtn').innerText='✅ Copied! Paste mo na!';
-}).catch(()=>{ fallbackCopy(text); });
-} else {
-fallbackCopy(text);
-}
-}
-function fallbackCopy(text){
-const ta=document.createElement('textarea');
-ta.value=text; ta.style.position='fixed'; ta.style.top='0'; ta.style.opacity='0';
-document.body.appendChild(ta); ta.focus(); ta.select();
-try{
-document.execCommand('copy');
-document.getElementById('copyBtn').innerText='✅ Copied! Paste mo na!';
-} catch(e){
-alert('Di ma-copy auto. Diinan mo matagal yung itim na box, Select All > Copy');
 const out=document.getElementById('out');
-const range=document.createRange(); range.selectNodeContents(out);
-const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+if(!out.value){ alert('Pindutin mo muna Generate Report'); return; }
+out.style.display='block'; out.focus(); out.select();
+try{ document.execCommand('copy'); document.getElementById('copyBtn').innerText='✅ Copied! Paste mo na!'; }
+catch(e){ alert('Diinan mo matagal yung itim na box, Select All > Copy'); }
+if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(out.value).then(()=>{ document.getElementById('copyBtn').innerText='✅ Copied! Paste mo na!'; }); }
 }
-document.body.removeChild(ta);
-}
+// AUTOMATIC DATE - Manila Time
+const now = new Date(new Date().toLocaleString("en-US", {timeZone:"Asia/Manila"}));
+const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+document.getElementById('date').value = months[now.getMonth()] + ". " + now.getDate() + ", " + now.getFullYear();
 renderChips(); addMobile("MOBILE 01","BALINTAWAK S/B"); addMobile("MOBILE 05","MEGA MALL N/B"); refreshDispatch();
 </script>
 </body>
